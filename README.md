@@ -29,6 +29,8 @@ for alert in meteo.get_alerts():
     print(alert['event'], alert['severity'], alert['onset'], alert['expires'])
 ```
 
+Each alert also has the CAP message fields `identifier`, `message_type` (`Alert`, `Update` or `Cancel`), `references` and `sent`, so you can follow a warning across updates and tell when one is cancelled.
+
 Alerts are ranked with current ones first, then by awareness level (`awareness_level`, e.g. `3; Orange; Severe`), then by CAP severity. Alerts that rank equally keep their order in the feed.
 
 ## What changed from meteoalertapi
@@ -38,6 +40,7 @@ Alerts are ranked with current ones first, then by awareness level (`awareness_l
 - New `get_alerts()` returns every matching alert, most severe first.
 - `awareness_level`, `awareness_type` and the other CAP parameters are now included for feeds with a single language, such as the UK's. Before, they were silently dropped.
 - An alert listed several times in the feed (once per language or area) is returned and fetched only once.
+- Each alert includes the CAP `identifier`, `message_type`, `references` and `sent`.
 - Python 3.10 or newer is required.
 
 ## Changelog
