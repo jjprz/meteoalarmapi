@@ -172,6 +172,28 @@ class TestMeteoalert(unittest.TestCase):
             Meteoalert("Atlantis", "Somewhere").get_alert()
 
     @requests_mock.mock()
+    def test_cap_message_fields(self, m):
+        """identifier, msgType, references and sent come from the CAP <alert>"""
+        self._register_multiple(m)
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+
+        with clock("2026-10-24T12:00:00"):
+            alerts = {a["event"]: a for a in meteo.get_alerts()}
+
+        amber = alerts["Amber wind warning"]
+        self.assertEqual(amber["identifier"], "2.49.0.0.826.0.GB_261024074259_34b39a5a.v2.0.W")
+        self.assertEqual(amber["message_type"], "Update")
+        self.assertEqual(amber["references"], "https://www.metoffice.gov.uk/weather/warnings-and-advice/uk-warnings,2.49.0.0.826.0.GB_261023090239_34b39a5a.v1.0.W,2026-10-23T09:02:39+00:00")
+        self.assertEqual(amber["sent"], "2026-10-24T07:42:59+00:00")
+
+        rain = alerts["Yellow rain warning"]
+        self.assertEqual(rain["message_type"], "Alert")
+        self.assertIsNone(rain["references"])
+
+        # each alert can be told apart by its identifier
+        self.assertEqual(len({a["identifier"] for a in alerts.values()}), 3)
+
+    @requests_mock.mock()
     def test_alert_fetched_once(self, m):
         """The flood has two feed entries (one per area) sharing a CAP document"""
         self._register_norway(m)

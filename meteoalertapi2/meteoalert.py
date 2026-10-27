@@ -85,8 +85,10 @@ class Meteoalert:
         return sorted(alerts, key=self.alert_rank, reverse=True)
 
     def _parse_cap(self, text):
-        """The CAP <info> in the requested language (or the first one) as a dict"""
-        infos = xmltodict.parse(text).get("alert", {}).get("info", [])
+        """The CAP <info> in the requested language (or the first one) as a dict,
+        plus the message fields needed to track an alert across updates"""
+        alert = xmltodict.parse(text).get("alert", {})
+        infos = alert.get("info", [])
         if not isinstance(infos, list):
             infos = [infos]
         if not infos:
@@ -100,6 +102,13 @@ class Meteoalert:
             parameters = [parameters]
         for parameter in parameters:
             data[parameter.get("valueName")] = parameter.get("value")
+
+        # Each CAP message has its own identifier; an Update or Cancel lists
+        # the messages it replaces in references
+        data["identifier"] = alert.get("identifier")
+        data["message_type"] = alert.get("msgType")
+        data["references"] = alert.get("references")
+        data["sent"] = alert.get("sent")
         return data
 
     def alert_rank(self, data):
