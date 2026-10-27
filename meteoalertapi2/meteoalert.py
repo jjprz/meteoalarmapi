@@ -75,7 +75,11 @@ class Meteoalert:
                             if link.get("@type") == "application/cap+xml"), None)
             if cap_url and cap_url not in seen:
                 seen.add(cap_url)
-                alerts.append(self._parse_cap(self._fetch(cap_url)))
+                text = self._fetch(cap_url, missing_ok=True)
+                # A warning withdrawn between reading the feed and fetching its
+                # document is gone, not a sign of a wrong country, so skip it.
+                if text is not None:
+                    alerts.append(self._parse_cap(text))
 
         # sorted() is stable, so equally ranked alerts keep feed order
         return sorted(alerts, key=self.alert_rank, reverse=True)
@@ -128,17 +132,25 @@ class Meteoalert:
         geocode = entry.get("cap:geocode")
         return isinstance(geocode, dict) and geocode.get("value") == province
 
-    def _fetch(self, url):
+    def _fetch(self, url, missing_ok=False):
+        """The response text, or None for a 404/410 when missing_ok"""
         try:
             response = requests.get(url, timeout=TIMEOUT)
         except Exception as err:
             raise UnexpectedError(str(err)) from err
+        if missing_ok and response.status_code in (404, 410):
+            return None
         self.check_status_code(response.status_code)
         return response.content.decode("utf-8")
 
     def check_status_code(self, status_code):
         if status_code == 404:
-            raise WrongCountry("Apparently unsupported country name was specified")
+            # MeteoAlarm sometimes briefly returns 404 for valid countries too
+            raise WrongCountry(
+                f"MeteoAlarm has no feed for country {self.country!r} (404). Check the "
+                "name matches feeds.meteoalarm.org; if it does, MeteoAlarm may be "
+                "temporarily unavailable"
+            )
         elif status_code >= 500:
             raise ServerError(f"Server error - status code: {status_code}")
         elif status_code != 200:

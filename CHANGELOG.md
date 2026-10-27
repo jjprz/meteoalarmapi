@@ -12,6 +12,7 @@ First release of the maintained fork, published as `meteoalertapi2`.
 - Added `get_alerts()`, which returns every matching alert, most severe first
 - Fixed CAP parameters (awareness_level, awareness_type, ...) being dropped for single-language feeds
 - Alerts with several feed entries (per language or area) are fetched and returned once
+- A warning whose CAP document has gone (404/410) is skipped instead of raising `WrongCountry`, and the feed's 404 message mentions that MeteoAlarm may be temporarily unavailable (home-assistant/core#177632)
 - Dropped Python 2 and versions older than 3.10; packaging moved to pyproject.toml
 - Releases are built and published to PyPI by GitHub Actions
 

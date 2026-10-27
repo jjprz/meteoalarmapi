@@ -147,6 +147,31 @@ class TestMeteoalert(unittest.TestCase):
             self.assertFalse(Meteoalert.is_expired("not a date"))
 
     @requests_mock.mock()
+    def test_missing_cap_document_skipped(self, m):
+        """A warning withdrawn after the feed was read (home-assistant/core#177632)"""
+        self._register_multiple(m)
+        m.get("/api/v1/warnings/feeds-united-kingdom/" + MULTIPLE[1][0], status_code=404)
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+
+        with clock("2026-10-24T12:00:00"):
+            events = [a["event"] for a in meteo.get_alerts()]
+        self.assertEqual(events, ["Yellow rain warning", "Yellow wind warning"])
+
+    @requests_mock.mock()
+    def test_cap_document_server_error(self, m):
+        """Other failures fetching a warning still fail the update"""
+        self._register_multiple(m)
+        m.get("/api/v1/warnings/feeds-united-kingdom/" + MULTIPLE[1][0], status_code=503)
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+        self.assertRaises(ServerError, meteo.get_alerts)
+
+    @requests_mock.mock()
+    def test_feed_not_found(self, m):
+        m.get("/feeds/meteoalarm-legacy-atom-atlantis", status_code=404)
+        with self.assertRaisesRegex(WrongCountry, "'atlantis'.*temporarily unavailable"):
+            Meteoalert("Atlantis", "Somewhere").get_alert()
+
+    @requests_mock.mock()
     def test_alert_fetched_once(self, m):
         """The flood has two feed entries (one per area) sharing a CAP document"""
         self._register_norway(m)
