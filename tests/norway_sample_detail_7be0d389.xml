@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.1.578.0.20261026073814.056</identifier>
+  <sender>meteorologi@met.no</sender>
+  <sent>2026-10-26T07:38:57+00:00</sent>
+  <status>Actual</status>
+  <msgType>Update</msgType>
+  <scope>Public</scope>
+  <code>MCP:v2.0</code>
+  <references>meteorologi@met.no,2.49.0.1.578.0.20261025185311.049,2026-10-25T18:54:43+00:00 meteorologi@met.no,2.49.0.1.578.0.20261025103148.064,2026-10-25T10:32:16+00:00 meteorologi@met.no,2.49.0.1.578.0.20261025070451.033,2026-10-25T08:29:54+00:00</references>
+  <incidents>0000052517</incidents>
+  <info>
+    <language>no</language>
+    <category>Met</category>
+    <category>Transport</category>
+    <event>Høy vannstand</event>
+    <responseType>Monitor</responseType>
+    <urgency>Future</urgency>
+    <severity>Moderate</severity>
+    <certainty>Likely</certainty>
+    <eventCode>
+      <valueName>OET:v1.0</valueName>
+      <value>OET-043</value>
+    </eventCode>
+    <eventCode>
+      <valueName>eventType</valueName>
+      <value>stormSurge</value>
+    </eventCode>
+    <onset>2026-10-26T06:00:00+00:00</onset>
+    <expires>2026-10-26T12:00:00+00:00</expires>
+    <senderName>Meteorologisk Institutt</senderName>
+    <headline>Høy vannstand, gult nivå, Kyst- og fjordstrøk i Hordaland, 2026-10-26T06:00:00+00:00, 2026-10-26T12:00:00+00:00</headline>
+    <description>Det er ventet høy vannstand. Mer informasjon om tidspunkt for høy vannstand og verdier for steder langs kysten finnes på sehavniva.no. Usikkerheten i varslet vannstand er 5-10 cm.</description>
+    <instruction>Fare for skader i strandsonen: Sjekk fortøyningen til båten og sikre løse gjenstander i strandsonen.</instruction>
+    <web>https://www.met.no/nyhetsarkiv/oransje-farevarsel-om-svaert-hoy-vannstand-i-rogaland</web>
+    <contact>https://www.met.no/kontakt-oss</contact>
+    <parameter>
+      <valueName>eventEndingTime</valueName>
+      <value>2026-10-26T12:00:00+00:00</value>
+    </parameter>
+    <parameter>
+      <valueName>impacts</valueName>
+      <value>Fare for skader i strandsonen: Oversvømmelser kan gi skader på infrastruktur og bygninger enkelte steder i strandsonen. Vis forsiktighet i strandsonen: Sterk vind og høye bølger i kombinasjon med høy vannstand kan øke skadeomfanget i strandsonen.</value>
+    </parameter>
+    <parameter>
+      <valueName>eventAwarenessName</valueName>
+      <value>Høy vannstand</value>
+    </parameter>
+    <parameter>
+      <valueName>awareness_level</valueName>
+      <value>2; yellow; Moderate</value>
+    </parameter>
+    <parameter>
+      <valueName>riskMatrixColor</valueName>
+      <value>Yellow</value>
+    </parameter>
+    <parameter>
+      <valueName>awarenessSeriousness</valueName>
+      <value>Utfordrende situasjon</value>
+    </parameter>
+    <parameter>
+      <valueName>awareness_type</valueName>
+      <value>7; coastalevent</value>
+    </parameter>
+    <parameter>
+      <valueName>awarenessResponse</valueName>
+      <value>Følg med</value>
+    </parameter>
+    <parameter>
+      <valueName>geographicDomain</valueName>
+      <value>land</value>
+    </parameter>
+    <parameter>
+      <valueName>administrativeId</valueName>
+      <value>county:11</value>
+    </parameter>
+    <parameter>
+      <valueName>administrativeId</valueName>
+      <value>county:46</value>
+    </parameter>
+    <parameter>
+      <valueName>MunicipalityId</valueName>
+      <value>1160;4601;4611;4612;4613;4614;4615;4616;4617;4618;4619;4620;4621;4622;4623;4624;4625;4626;4627;4628;4629;4630;4631;4632;4633;4634</value>
+    </parameter>
+    <area>
+      <areaDesc>Kyst- og fjordstrøk i Hordaland</areaDesc>
+      <polygon>59.4915,5.368 59.4767,5.45267 59.4847,5.51 59.5208,5.588 59.5557,5.71433 59.5768,5.81683 59.6065,5.92517 59.6257,5.989 59.7178,6.17033 59.8573,6.43817 59.9168,6.40633 59.875,6.08967 59.965,6.07217 60.0295,6.08933 60.0725,6.2315 60.1435,6.35567 60.1945,6.30217 60.1565,6.19733 60.1808,6.16567 60.2193,6.24783 60.3035,6.40567 60.3315,6.5445 60.2113,6.487 60.102,6.455 60.004,6.52017 60.0475,6.614 60.1787,6.70433 60.3878,6.82483 60.4227,7.06017 60.4837,7.223 60.5827,7.19667 60.628,6.98683 60.5557,6.49883 60.456,6.14267 60.269,5.8365 60.4743,5.82233 60.664,5.826 60.734,5.88 60.7947,5.71533 60.729,5.49983 60.7967,5.4165 60.8607,5.639 60.8982,5.6215 60.9288,5.62233 60.9615,5.58517 60.9312,5.52633 60.922,5.48283 60.937,5.47217 60.9275,5.4225 60.9127,5.38383 60.9115,5.327 60.9385,5.30483 60.9413,5.28083 60.9282,5.27567 60.9365,5.21967 60.8457,5.143 60.812,5.10967 60.8377,4.97117 60.8497,4.79017 60.8758,4.59717 60.8745,4.44783 60.6207,4.58917 60.2962,4.76033 59.8193,4.92633 59.5,4.967 59.513,5.13467 59.5117,5.20867 59.4772,5.309 59.4915,5.368 59.4915,5.368</polygon>
+      <altitude>0</altitude>
+      <ceiling>80</ceiling>
+    </area>
+  </info>
+  <info>
+    <language>en-GB</language>
+    <category>Met</category>
+    <category>Transport</category>
+    <event>High water level</event>
+    <responseType>Monitor</responseType>
+    <urgency>Future</urgency>
+    <severity>Moderate</severity>
+    <certainty>Likely</certainty>
+    <eventCode>
+      <valueName>OET:v1.0</valueName>
+      <value>OET-043</value>
+    </eventCode>
+    <eventCode>
+      <valueName>eventType</valueName>
+      <value>stormSurge</value>
+    </eventCode>
+    <onset>2026-10-26T06:00:00+00:00</onset>
+    <expires>2026-10-26T12:00:00+00:00</expires>
+    <senderName>MET Norway</senderName>
+    <headline>High water level, yellow level, Coast and fjords in Hordaland, 2026-10-26T06:00:00+00:00, 2026-10-26T12:00:00+00:00</headline>
+    <description>High water level is expected. More information about timing of high water level and values for positions along the coast at sehavniva.no. The uncertainty of the predicted water level is 5-10 cm.</description>
+    <instruction>Risk of damage in the coastal zone: Check the boat’s moorings and secure loose items in the coastal areas.</instruction>
+    <web>https://www.met.no/nyhetsarkiv/oransje-farevarsel-om-svaert-hoy-vannstand-i-rogaland</web>
+    <contact>https://www.met.no/en/contact-us</contact>
+    <parameter>
+      <valueName>eventEndingTime</valueName>
+      <value>2026-10-26T12:00:00+00:00</value>
+    </parameter>
+    <parameter>
+      <valueName>impacts</valueName>
+      <value>Risk of damage in the coastal zone: Flooding may cause damage to infrastructure and buildings in some areas along the coast. Be cautious in the coastal zone: Strong wind and large waves combined with high water levels may increase the damage potential in the coastal zone.</value>
+    </parameter>
+    <parameter>
+      <valueName>eventAwarenessName</valueName>
+      <value>High water level</value>
+    </parameter>
+    <parameter>
+      <valueName>awareness_level</valueName>
+      <value>2; yellow; Moderate</value>
+    </parameter>
+    <parameter>
+      <valueName>riskMatrixColor</valueName>
+      <value>Yellow</value>
+    </parameter>
+    <parameter>
+      <valueName>awarenessSeriousness</valueName>
+      <value>Challenging situation</value>
+    </parameter>
+    <parameter>
+      <valueName>awareness_type</valueName>
+      <value>7; coastalevent</value>
+    </parameter>
+    <parameter>
+      <valueName>awarenessResponse</valueName>
+      <value>Be aware</value>
+    </parameter>
+    <parameter>
+      <valueName>geographicDomain</valueName>
+      <value>land</value>
+    </parameter>
+    <parameter>
+      <valueName>administrativeId</valueName>
+      <value>county:11</value>
+    </parameter>
+    <parameter>
+      <valueName>administrativeId</valueName>
+      <value>county:46</value>
+    </parameter>
+    <parameter>
+      <valueName>MunicipalityId</valueName>
+      <value>1160;4601;4611;4612;4613;4614;4615;4616;4617;4618;4619;4620;4621;4622;4623;4624;4625;4626;4627;4628;4629;4630;4631;4632;4633;4634</value>
+    </parameter>
+    <area>
+      <areaDesc>Coast and fjords in Hordaland</areaDesc>
+      <polygon>59.4915,5.368 59.4767,5.45267 59.4847,5.51 59.5208,5.588 59.5557,5.71433 59.5768,5.81683 59.6065,5.92517 59.6257,5.989 59.7178,6.17033 59.8573,6.43817 59.9168,6.40633 59.875,6.08967 59.965,6.07217 60.0295,6.08933 60.0725,6.2315 60.1435,6.35567 60.1945,6.30217 60.1565,6.19733 60.1808,6.16567 60.2193,6.24783 60.3035,6.40567 60.3315,6.5445 60.2113,6.487 60.102,6.455 60.004,6.52017 60.0475,6.614 60.1787,6.70433 60.3878,6.82483 60.4227,7.06017 60.4837,7.223 60.5827,7.19667 60.628,6.98683 60.5557,6.49883 60.456,6.14267 60.269,5.8365 60.4743,5.82233 60.664,5.826 60.734,5.88 60.7947,5.71533 60.729,5.49983 60.7967,5.4165 60.8607,5.639 60.8982,5.6215 60.9288,5.62233 60.9615,5.58517 60.9312,5.52633 60.922,5.48283 60.937,5.47217 60.9275,5.4225 60.9127,5.38383 60.9115,5.327 60.9385,5.30483 60.9413,5.28083 60.9282,5.27567 60.9365,5.21967 60.8457,5.143 60.812,5.10967 60.8377,4.97117 60.8497,4.79017 60.8758,4.59717 60.8745,4.44783 60.6207,4.58917 60.2962,4.76033 59.8193,4.92633 59.5,4.967 59.513,5.13467 59.5117,5.20867 59.4772,5.309 59.4915,5.368 59.4915,5.368</polygon>
+      <altitude>0</altitude>
+      <ceiling>80</ceiling>
+    </area>
+  </info>
+</alert>

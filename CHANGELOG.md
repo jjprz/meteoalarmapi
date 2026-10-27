@@ -11,6 +11,7 @@ First release of the maintained fork, published as `meteoalertapi2`.
 - `get_alert()` returns the most severe current alert instead of the first match in the feed
 - Added `get_alerts()`, which returns every matching alert, most severe first
 - Fixed CAP parameters (awareness_level, awareness_type, ...) being dropped for single-language feeds
+- Alerts with several feed entries (per language or area) are fetched and returned once
 - Dropped Python 2 and versions older than 3.10; packaging moved to pyproject.toml
 - Releases are built and published to PyPI by GitHub Actions
 

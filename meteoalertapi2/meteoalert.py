@@ -62,6 +62,9 @@ class Meteoalert:
             entries = [entries]
 
         alerts = []
+        # The feed has an entry per language and area of an alert, all
+        # pointing at the same CAP document, so fetch each one once.
+        seen = set()
         for entry in entries:
             if not self.is_location_match(entry, self.province):
                 continue
@@ -70,7 +73,8 @@ class Meteoalert:
                 links = [links]
             cap_url = next((link.get("@href") for link in links
                             if link.get("@type") == "application/cap+xml"), None)
-            if cap_url:
+            if cap_url and cap_url not in seen:
+                seen.add(cap_url)
                 alerts.append(self._parse_cap(self._fetch(cap_url)))
 
         # sorted() is stable, so equally ranked alerts keep feed order
