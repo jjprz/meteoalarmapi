@@ -14,6 +14,10 @@ MULTIPLE = (
     ("ebbdecd5-fa00-40ec-9fa2-a4a5ea13b424", "amber_wind"),
     ("b0e83ff1-0a4b-4f2e-947a-c20b1432417c", "yellow_wind"),
 )
+# norway_sample.xml (26 Oct 2026): high water in Rogaland and Hordaland, and
+# a flood with two entries (two areas). Detail files are named by the CAP
+# document's id prefix.
+NORWAY = ("ef68e1fd", "7be0d389", "15082db6")
 
 
 def utc(text):
@@ -141,6 +145,23 @@ class TestMeteoalert(unittest.TestCase):
             self.assertTrue(Meteoalert.is_expired("2026-10-24T11:00:00Z"))
             self.assertFalse(Meteoalert.is_expired(None))
             self.assertFalse(Meteoalert.is_expired("not a date"))
+
+    @requests_mock.mock()
+    def test_alert_fetched_once(self, m):
+        """The flood has two feed entries (one per area) sharing a CAP document"""
+        self._register_norway(m)
+
+        alerts = Meteoalert("Norway", "stlandet").get_alerts()
+        self.assertEqual([a["event"] for a in alerts], ["Flood"])
+        cap_requests = [r for r in m.request_history if "15082db6" in r.url]
+        self.assertEqual(len(cap_requests), 1)
+
+    @staticmethod
+    def _register_norway(m):
+        m.get("/feeds/meteoalarm-legacy-atom-norway", text=read("norway_sample.xml"))
+        for uuid in NORWAY:
+            m.get(re.compile("/api/v1/warnings/feeds-norway/" + uuid),
+                  text=read(f"norway_sample_detail_{uuid}.xml"))
 
     @staticmethod
     def _register_multiple(m):
