@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## meteoalertapi2 0.4.0 - unreleased
+First release of the maintained fork, published as `meteoalertapi2`.
+
+- Renamed the package to `meteoalertapi2` (`from meteoalertapi2 import Meteoalert`)
+- `get_alert()` returns the most severe current alert instead of the first match in the feed
+- Added `get_alerts()`, which returns every matching alert, most severe first
+- Fixed CAP parameters (awareness_level, awareness_type, ...) being dropped for single-language feeds
+- Dropped Python 2 and versions older than 3.10; packaging moved to pyproject.toml
+- Releases are built and published to PyPI by GitHub Actions
+
+## 0.3.1 - 2024-02-07
+###
+- Match provinces by their EMMA_ID code as well as by name
+
 ## 0.0.1 - 2019-04-29
 ###
 - Initial release

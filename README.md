@@ -1,31 +1,43 @@
-# meteoalarm-api
+# meteoalertapi2
 
+![PyPI](https://img.shields.io/pypi/v/meteoalertapi2.svg?style=for-the-badge)
 
-![PyPI](https://img.shields.io/pypi/v/meteoalertapi.svg?style=for-the-badge|https://pypi.org/project/meteoalertapi)
-![Travis (.org)](https://img.shields.io/travis/rolfberkenbosch/meteoalert-api.svg?style=for-the-badge)
+An unofficial Python wrapper for [MeteoAlarm.org](https://meteoalarm.org) (European weather alerts), which can be used to check whether a given province in your country currently has a weather alert.
 
-An unofficial Python wrapper for [MeteoAlarm.org](https://meteoalarm.org) website (European Weather alerts), which can be used to check if a given province in your country has currently a weather alert.
+This is a maintained fork of [meteoalertapi](https://github.com/rolfberkenbosch/meteoalert-api) by Rolf Berkenbosch, which has had no releases since February 2024. It keeps the same `Meteoalert` class and alert fields. See [What changed from meteoalertapi](#what-changed-from-meteoalertapi).
 
 ## Installation
 
-Using Pip:
-
 ```console
-pip install meteoalertapi
+pip install meteoalertapi2
 ```
 
-## Code Example
+## Code example
 
 ```python
-from meteoalertapi import Meteoalert
+from meteoalertapi2 import Meteoalert
 
-# Find you country and province on https://meteoalarm.org/ or https://feeds.meteoalarm.org/
-meteo = Meteoalert('country', 'province_name')
+# Find your country and province on https://meteoalarm.org/ or https://feeds.meteoalarm.org/
+# The province can be its name (matched as a regular expression) or its EMMA_ID code.
+meteo = Meteoalert('united-kingdom', 'Highlands & Eilean Siar')
 
-# Get the weather alarm for your place
-meteo = Meteoalert('country', 'province_name')
-print(str(meteo.get_alert()))
+# The most severe current alert, or {} when there is none
+print(meteo.get_alert())
+
+# Every alert for the province, most severe first
+for alert in meteo.get_alerts():
+    print(alert['event'], alert['severity'], alert['onset'], alert['expires'])
 ```
+
+Alerts are ranked with current ones first, then by awareness level (`awareness_level`, e.g. `3; Orange; Severe`), then by CAP severity. Alerts that rank equally keep their order in the feed.
+
+## What changed from meteoalertapi
+
+- The package is now imported as `meteoalertapi2` instead of `meteoalertapi`.
+- `get_alert()` returns the most severe current alert. Before, it returned the first match in the feed, so a yellow warning could hide an amber one.
+- New `get_alerts()` returns every matching alert, most severe first.
+- `awareness_level`, `awareness_type` and the other CAP parameters are now included for feeds with a single language, such as the UK's. Before, they were silently dropped.
+- Python 3.10 or newer is required.
 
 ## Changelog
 
@@ -33,4 +45,4 @@ See the [CHANGELOG](./CHANGELOG.md) file.
 
 ## License
 
-MIT
+MIT. Original work copyright (c) 2018 Rolf Berkenbosch.

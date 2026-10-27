@@ -1,163 +1,154 @@
-# - *- coding: utf- 8 - *-
-import requests_mock
-import unittest
 import os
 import re
-import calendar
-import time
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-from meteoalertapi import *
+import unittest
+from datetime import datetime, timezone
+from unittest import mock
+
+import requests_mock
+
+from meteoalertapi2 import Meteoalert, ServerError, UnexpectedError, WrongCountry
+
+# uk_multiple_sample.xml (Highlands & Eilean Siar, 24 Oct 2026) lists, in feed order:
+MULTIPLE = (
+    ("43e42eb0-196b-4fe7-b26e-1e3490954cc9", "yellow_rain"),
+    ("ebbdecd5-fa00-40ec-9fa2-a4a5ea13b424", "amber_wind"),
+    ("b0e83ff1-0a4b-4f2e-947a-c20b1432417c", "yellow_wind"),
+)
+
+
+def utc(text):
+    return datetime.fromisoformat(text).replace(tzinfo=timezone.utc)
+
+
+def clock(text):
+    return mock.patch("meteoalertapi2.meteoalert._utcnow", return_value=utc(text))
+
+
+def file_path(file_name):
+    return os.path.join(os.path.dirname(__file__), file_name)
+
+
+def read(file_name):
+    with open(file_path(file_name), encoding="utf-8") as xml_file:
+        return xml_file.read()
+
 
 class TestMeteoalert(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
-
     @requests_mock.mock()
     def test_get_alert(self, m):
-        with open(self._file_path('uk_sample.xml')) as xml_file:
-            m.register_uri('GET', '/feeds/meteoalarm-legacy-atom-united-kingdom', text=xml_file.read(), status_code=200)
-        with open(self._file_path('uk_nothern_ireland_sample_detail.xml')) as xml_file:
-            # get_alert() fetches every matching alert to rank them
-            m.register_uri('GET', re.compile('/api/v1/warnings/feeds-united-kingdom/'),
-                           text=xml_file.read(), status_code=200)
+        m.get("/feeds/meteoalarm-legacy-atom-united-kingdom", text=read("uk_sample.xml"))
+        # every matching alert is fetched to rank them
+        m.get(re.compile("/api/v1/warnings/feeds-united-kingdom/"),
+              text=read("uk_nothern_ireland_sample_detail.xml"))
 
-        self.meteo = Meteoalert('United-Kingdom', 'Northern Ireland')
-
-        """Should return a dict (maybe empty)"""
-        try:
-            data = self.meteo.get_alert()
-        except Exception:
-            self.fail("'get_alert()' raised an unexpected exception!")
+        data = Meteoalert("United-Kingdom", "Northern Ireland").get_alert()
         self.assertEqual(type(data), dict)
         self.assertGreater(len(data), 0)
 
-
     def test_wrong_country_name(self):
-        self.meteo = Meteoalert('wrong_country_name', 'some_city', 'some-lang')
-
-        """Should throw WrongCountry exception"""
-        self.assertRaises(WrongCountry, self.meteo.get_alert)
+        meteo = Meteoalert("wrong_country_name", "some_city", "some-lang")
+        self.assertRaises(WrongCountry, meteo.get_alert)
 
     @requests_mock.mock()
     def test_retrieve_alert_by_code(self, m):
-        with open(self._file_path('ireland_sample.xml')) as xml_file:
-            m.register_uri('GET', '/feeds/meteoalarm-legacy-atom-ireland', text=xml_file.read(), status_code=200)
-        with open(self._file_path('ireland_sample_detail.xml')) as xml_file:
-            m.register_uri('GET', re.compile('/api/v1/warnings/feeds-ireland/'), text=xml_file.read(), status_code=200)
+        m.get("/feeds/meteoalarm-legacy-atom-ireland", text=read("ireland_sample.xml"))
+        m.get(re.compile("/api/v1/warnings/feeds-ireland/"), text=read("ireland_sample_detail.xml"))
 
-        self.meteo = Meteoalert('Ireland', 'EI25')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
+        data = Meteoalert("Ireland", "EI25").get_alert()
         self.assertGreater(len(data), 0)
 
-        self.meteo = Meteoalert('Ireland', 'FAKE')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
-        self.assertEqual(len(data), 0)
+        self.assertEqual(Meteoalert("Ireland", "FAKE").get_alert(), {})
 
     @requests_mock.mock()
     def test_lookup_by_code_and_area_name(self, m):
-        with open(self._file_path('france_sample.xml')) as xml_file:
-            m.register_uri('GET', '/feeds/meteoalarm-legacy-atom-france', text=xml_file.read(), status_code=200)
-        with open(self._file_path('france_sample_detail.xml')) as xml_file:
-            m.register_uri('GET', re.compile('/api/v1/warnings/feeds-france/'),
-                           text=xml_file.read(), status_code=200)
+        m.get("/feeds/meteoalarm-legacy-atom-france", text=read("france_sample.xml"))
+        m.get(re.compile("/api/v1/warnings/feeds-france/"), text=read("france_sample_detail.xml"))
 
-        self.meteo = Meteoalert('France', 'Haute Savoie')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
-        self.assertGreater(len(data), 0)
-
-        # ensure we can get the French localised version
-        self.meteo = Meteoalert('France', 'Haute Savoie', 'fr-FR')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
-        self.assertGreater(len(data), 0)
-
-        # ensure we can get the alert by area code
-        self.meteo = Meteoalert('France', 'FR822', 'fr-FR')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
-        self.assertGreater(len(data), 0)
-
-        self.meteo = Meteoalert('France', 'FAKE')
-        data = self.meteo.get_alert()
-        self.assertEqual(type(data), dict)
-        self.assertEqual(len(data), 0)
+        self.assertGreater(len(Meteoalert("France", "Haute Savoie").get_alert()), 0)
+        # the French localised version
+        data = Meteoalert("France", "Haute Savoie", "fr-FR").get_alert()
+        self.assertEqual(data["language"], "fr-FR")
+        # by area code
+        self.assertGreater(len(Meteoalert("France", "FR822", "fr-FR").get_alert()), 0)
+        self.assertEqual(Meteoalert("France", "FAKE").get_alert(), {})
 
     def test_server_not_reachable(self):
-        self.meteo = Meteoalert('poland', 'krakow', 'en-US')
-        self.meteo.endpoint = "https://simulate-dns-problem-with-meteo.zzzzzz/{0}"
-
-        """Should throw UnexpectedError exception"""
-        self.assertRaises(UnexpectedError, self.meteo.get_alert)
-
+        meteo = Meteoalert("poland", "krakow", "en-US")
+        meteo.endpoint = "https://simulate-dns-problem-with-meteo.zzzzzz/{0}"
+        self.assertRaises(UnexpectedError, meteo.get_alert)
 
     def test_server_error(self):
         with requests_mock.mock() as m:
-            m.get(requests_mock.ANY, status_code=500, text='simulated server error')            
-            self.meteo = Meteoalert('wrong_country_name', 'some_city', 'some-lang')
-
-            """Should throw ServerError exception"""
-            self.assertRaises(ServerError, self.meteo.get_alert)
+            m.get(requests_mock.ANY, status_code=500, text="simulated server error")
+            meteo = Meteoalert("wrong_country_name", "some_city", "some-lang")
+            self.assertRaises(ServerError, meteo.get_alert)
 
     @requests_mock.mock()
     def test_most_severe_alert(self, m):
         self._register_multiple(m)
-        self.meteo = Meteoalert('United-Kingdom', 'Highlands & Eilean Siar')
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
 
-        """The feed lists yellow rain, amber wind, yellow wind; amber should win"""
-        with mock.patch('time.time', return_value=self._timestamp('2026-10-24T12:00:00')):
-            data = self.meteo.get_alert()
-        self.assertEqual(data['event'], 'Amber wind warning')
-        self.assertEqual(data['severity'], 'Severe')
+        with clock("2026-10-24T12:00:00"):
+            data = meteo.get_alert()
+        self.assertEqual(data["event"], "Amber wind warning")
+        self.assertEqual(data["severity"], "Severe")
+
+    @requests_mock.mock()
+    def test_get_alerts_order(self, m):
+        self._register_multiple(m)
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+
+        with clock("2026-10-24T12:00:00"):
+            events = [a["event"] for a in meteo.get_alerts()]
+        # the two yellows rank equally, so keep feed order
+        self.assertEqual(events, ["Amber wind warning", "Yellow rain warning", "Yellow wind warning"])
+
+        with clock("2026-10-25T16:00:00"):
+            events = [a["event"] for a in meteo.get_alerts()]
+        # yellow rain expired at 15:00
+        self.assertEqual(events, ["Amber wind warning", "Yellow wind warning", "Yellow rain warning"])
+
+    @requests_mock.mock()
+    def test_single_language_parameters(self, m):
+        """UK CAP documents have one <info>; its parameters used to be dropped"""
+        self._register_multiple(m)
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+
+        with clock("2026-10-24T12:00:00"):
+            data = meteo.get_alert()
+        self.assertEqual(data["awareness_level"], "3; Orange; Severe")
+        self.assertEqual(data["awareness_type"], "1; Wind")
 
     def test_expired_alert_not_preferred(self):
-        meteo = Meteoalert('United-Kingdom', 'Highlands & Eilean Siar')
-        expired_amber = {'event': 'Amber wind warning', 'severity': 'Severe',
-                         'awareness_level': '3; Orange; Severe', 'expires': '2026-10-24T10:00:00+00:00'}
-        current_yellow = {'event': 'Yellow rain warning', 'severity': 'Moderate',
-                          'expires': '2026-10-25T15:00:00+00:00'}
-        other_yellow = {'event': 'Yellow wind warning', 'severity': 'Moderate',
-                        'expires': '2026-10-25T21:00:00+00:00'}
+        meteo = Meteoalert("United-Kingdom", "Highlands & Eilean Siar")
+        expired_amber = {"event": "Amber wind warning", "severity": "Severe",
+                         "awareness_level": "3; Orange; Severe",
+                         "expires": "2026-10-24T10:00:00+00:00"}
+        current_yellow = {"event": "Yellow rain warning", "severity": "Moderate",
+                          "expires": "2026-10-25T15:00:00+00:00"}
 
-        with mock.patch('time.time', return_value=self._timestamp('2026-10-24T12:00:00')):
-            ranked = max([expired_amber, current_yellow, other_yellow], key=meteo.alert_rank)
-        """A current alert beats an expired, more severe one; ties keep feed order"""
+        with clock("2026-10-24T12:00:00"):
+            ranked = max([expired_amber, current_yellow], key=meteo.alert_rank)
         self.assertIs(ranked, current_yellow)
 
     def test_is_expired(self):
-        now = self._timestamp('2026-10-24T12:00:00')
-        with mock.patch('time.time', return_value=now):
-            self.assertTrue(Meteoalert.is_expired('2026-10-24T11:59:59+00:00'))
-            self.assertFalse(Meteoalert.is_expired('2026-10-24T12:30:00+00:00'))
+        with clock("2026-10-24T12:00:00"):
+            self.assertTrue(Meteoalert.is_expired("2026-10-24T11:59:59+00:00"))
+            self.assertFalse(Meteoalert.is_expired("2026-10-24T12:30:00+00:00"))
             # 13:30 at +02:00 is 11:30 UTC
-            self.assertTrue(Meteoalert.is_expired('2026-10-24T13:30:00+02:00'))
+            self.assertTrue(Meteoalert.is_expired("2026-10-24T13:30:00+02:00"))
+            self.assertTrue(Meteoalert.is_expired("2026-10-24T11:00:00Z"))
             self.assertFalse(Meteoalert.is_expired(None))
-
-    def _register_multiple(self, m):
-        with open(self._file_path('uk_multiple_sample.xml')) as xml_file:
-            m.register_uri('GET', '/feeds/meteoalarm-legacy-atom-united-kingdom', text=xml_file.read(), status_code=200)
-        for uuid, name in (('43e42eb0-196b-4fe7-b26e-1e3490954cc9', 'yellow_rain'),
-                           ('ebbdecd5-fa00-40ec-9fa2-a4a5ea13b424', 'amber_wind'),
-                           ('b0e83ff1-0a4b-4f2e-947a-c20b1432417c', 'yellow_wind')):
-            with open(self._file_path('uk_multiple_detail_{}.xml'.format(name))) as xml_file:
-                m.register_uri('GET', '/api/v1/warnings/feeds-united-kingdom/' + uuid,
-                               text=xml_file.read(), status_code=200)
+            self.assertFalse(Meteoalert.is_expired("not a date"))
 
     @staticmethod
-    def _timestamp(utc):
-        return calendar.timegm(time.strptime(utc, '%Y-%m-%dT%H:%M:%S'))
+    def _register_multiple(m):
+        m.get("/feeds/meteoalarm-legacy-atom-united-kingdom", text=read("uk_multiple_sample.xml"))
+        for uuid, name in MULTIPLE:
+            m.get("/api/v1/warnings/feeds-united-kingdom/" + uuid,
+                  text=read(f"uk_multiple_detail_{name}.xml"))
 
-    @staticmethod
-    def _file_path(file_name):
-        thispath = os.path.dirname(__file__)
-        return "{}/{}".format(thispath, file_name)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

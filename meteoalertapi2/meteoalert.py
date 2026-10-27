@@ -1,0 +1,141 @@
+"""Weather alerts for a European region from MeteoAlarm.org.
+
+Reads the country's legacy Atom feed, keeps the entries whose area matches
+the region (by name or EMMA_ID code) and fetches each one's CAP document.
+"""
+
+import re
+from datetime import datetime, timezone
+
+import requests
+import xmltodict
+
+
+class WrongCountry(Exception):
+    pass
+
+
+class ServerError(Exception):
+    pass
+
+
+class UnexpectedError(Exception):
+    pass
+
+
+# CAP severities, least to most severe
+SEVERITIES = ["Unknown", "Minor", "Moderate", "Severe", "Extreme"]
+TIMEOUT = 10
+
+
+def _utcnow():
+    # A function so tests can patch the clock
+    return datetime.now(timezone.utc)
+
+
+class Meteoalert:
+
+    endpoint = "https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-{0}"
+
+    def __init__(self, country, province, language="en-GB"):
+        self.country = country.lower()
+        self.province = province
+        self.language = language
+
+    def get_alert(self):
+        """The most severe alert for the province, or {} when there is none.
+
+        See get_alerts() for the order.
+        """
+        alerts = self.get_alerts()
+        return alerts[0] if alerts else {}
+
+    def get_alerts(self):
+        """Every alert for the province, most severe first.
+
+        Unexpired alerts come first, then the highest awareness level (or CAP
+        severity when there is none). Equally ranked alerts keep feed order.
+        """
+        feed = xmltodict.parse(self._fetch(self.endpoint.format(self.country)))
+        entries = (feed.get("feed") or {}).get("entry", [])
+        if not isinstance(entries, list):
+            entries = [entries]
+
+        alerts = []
+        for entry in entries:
+            if not self.is_location_match(entry, self.province):
+                continue
+            links = entry.get("link", [])
+            if not isinstance(links, list):
+                links = [links]
+            cap_url = next((link.get("@href") for link in links
+                            if link.get("@type") == "application/cap+xml"), None)
+            if cap_url:
+                alerts.append(self._parse_cap(self._fetch(cap_url)))
+
+        # sorted() is stable, so equally ranked alerts keep feed order
+        return sorted(alerts, key=self.alert_rank, reverse=True)
+
+    def _parse_cap(self, text):
+        """The CAP <info> in the requested language (or the first one) as a dict"""
+        infos = xmltodict.parse(text).get("alert", {}).get("info", [])
+        if not isinstance(infos, list):
+            infos = [infos]
+        if not infos:
+            return {}
+        info = next((i for i in infos if self.language in (i.get("language") or "")),
+                    infos[0])
+
+        data = {key: value for key, value in info.items() if isinstance(value, str)}
+        parameters = info.get("parameter", [])
+        if not isinstance(parameters, list):
+            parameters = [parameters]
+        for parameter in parameters:
+            data[parameter.get("valueName")] = parameter.get("value")
+        return data
+
+    def alert_rank(self, data):
+        """Sort key for an alert: (not expired, awareness level, severity)"""
+        level = re.match(r"\s*(\d+)", data.get("awareness_level") or "")
+        severity = data.get("severity")
+        return (
+            not self.is_expired(data.get("expires")),
+            int(level.group(1)) if level else 0,
+            SEVERITIES.index(severity) if severity in SEVERITIES else 0,
+        )
+
+    @staticmethod
+    def is_expired(expires):
+        """Whether a CAP time (2024-01-01T12:00:00+01:00) is in the past"""
+        try:
+            moment = datetime.fromisoformat(expires.replace("Z", "+00:00"))
+        except (AttributeError, ValueError):
+            return False
+        if moment.tzinfo is None:
+            moment = moment.replace(tzinfo=timezone.utc)
+        return moment <= _utcnow()
+
+    def is_location_match(self, entry, province):
+        # Attempt to match the province first by regex on name
+        if re.search(rf"{province}", entry.get("cap:areaDesc") or "", re.IGNORECASE):
+            return True
+
+        # then by areaCode
+        geocode = entry.get("cap:geocode")
+        return isinstance(geocode, dict) and geocode.get("value") == province
+
+    def _fetch(self, url):
+        try:
+            response = requests.get(url, timeout=TIMEOUT)
+        except Exception as err:
+            raise UnexpectedError(str(err)) from err
+        self.check_status_code(response.status_code)
+        return response.content.decode("utf-8")
+
+    def check_status_code(self, status_code):
+        if status_code == 404:
+            raise WrongCountry("Apparently unsupported country name was specified")
+        elif status_code >= 500:
+            raise ServerError(f"Server error - status code: {status_code}")
+        elif status_code != 200:
+            raise UnexpectedError(f"Server returned unexpected status code: {status_code}")
