@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "meteoalertapi2"
+name = "meteoalarmapi"
 version = "0.4.0"
 description = "Weather alerts for European regions from MeteoAlarm.org. A maintained fork of meteoalertapi."
 readme = "README.md"
@@ -22,12 +22,12 @@ classifiers = [
 test = ["pytest", "requests-mock"]
 
 [project.urls]
-Source = "https://github.com/mastermc0/meteoalertapi2"
-Issues = "https://github.com/mastermc0/meteoalertapi2/issues"
+Source = "https://github.com/mastermc0/meteoalarmapi"
+Issues = "https://github.com/mastermc0/meteoalarmapi/issues"
 Original = "https://github.com/rolfberkenbosch/meteoalert-api"
 
 [tool.hatch.build.targets.sdist]
-include = ["meteoalertapi2", "tests", "README.md", "CHANGELOG.md", "LICENSE"]
+include = ["meteoalarmapi", "tests", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [tool.ruff]
 line-length = 100

@@ -6,7 +6,7 @@ from unittest import mock
 
 import requests_mock
 
-from meteoalertapi2 import Meteoalert, ServerError, UnexpectedError, WrongCountry
+from meteoalarmapi import Meteoalert, ServerError, UnexpectedError, WrongCountry
 
 # uk_multiple_sample.xml (Highlands & Eilean Siar, 24 Oct 2026) lists, in feed order:
 MULTIPLE = (
@@ -25,7 +25,7 @@ def utc(text):
 
 
 def clock(text):
-    return mock.patch("meteoalertapi2.meteoalert._utcnow", return_value=utc(text))
+    return mock.patch("meteoalarmapi.meteoalert._utcnow", return_value=utc(text))
 
 
 def file_path(file_name):

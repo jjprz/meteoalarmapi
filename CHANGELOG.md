@@ -4,10 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## meteoalertapi2 0.4.0 - unreleased
-First release of the maintained fork, published as `meteoalertapi2`.
+## meteoalarmapi 0.4.0 - unreleased
+First release of the maintained fork, published as `meteoalarmapi`.
 
-- Renamed the package to `meteoalertapi2` (`from meteoalertapi2 import Meteoalert`)
+- Renamed the package to `meteoalarmapi` (`from meteoalarmapi import Meteoalert`)
 - `get_alert()` returns the most severe current alert instead of the first match in the feed
 - Added `get_alerts()`, which returns every matching alert, most severe first
 - Fixed CAP parameters (awareness_level, awareness_type, ...) being dropped for single-language feeds

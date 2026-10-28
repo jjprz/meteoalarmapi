@@ -1,6 +1,6 @@
-# meteoalertapi2
+# meteoalarmapi
 
-![PyPI](https://img.shields.io/pypi/v/meteoalertapi2.svg?style=for-the-badge)
+![PyPI](https://img.shields.io/pypi/v/meteoalarmapi.svg?style=for-the-badge)
 
 An unofficial Python wrapper for [MeteoAlarm.org](https://meteoalarm.org) (European weather alerts), which can be used to check whether a given province in your country currently has a weather alert.
 
@@ -9,13 +9,13 @@ This is a maintained fork of [meteoalertapi](https://github.com/rolfberkenbosch/
 ## Installation
 
 ```console
-pip install meteoalertapi2
+pip install meteoalarmapi
 ```
 
 ## Code example
 
 ```python
-from meteoalertapi2 import Meteoalert
+from meteoalarmapi import Meteoalert
 
 # Find your country and province on https://meteoalarm.org/ or https://feeds.meteoalarm.org/
 # The province can be its name (matched as a regular expression) or its EMMA_ID code.
@@ -35,7 +35,7 @@ Alerts are ranked with current ones first, then by awareness level (`awareness_l
 
 ## What changed from meteoalertapi
 
-- The package is now imported as `meteoalertapi2` instead of `meteoalertapi`.
+- The package is now imported as `meteoalarmapi` instead of `meteoalertapi`.
 - `get_alert()` returns the most severe current alert. Before, it returned the first match in the feed, so a yellow warning could hide an amber one.
 - New `get_alerts()` returns every matching alert, most severe first.
 - `awareness_level`, `awareness_type` and the other CAP parameters are now included for feeds with a single language, such as the UK's. Before, they were silently dropped.
