@@ -31,10 +31,10 @@ for alert in meteo.get_alerts():
 
 Each alert also has the CAP message fields `identifier`, `message_type` (`Alert`, `Update` or `Cancel`), `references` and `sent`, so you can follow a warning across updates and tell when one is cancelled.
 
-Some feeds keep warnings for a while after they end. Pass `current_only=True` to leave expired alerts out; alerts that haven't started yet are kept:
+Some feeds keep warnings for a while after they end. Pass `include_expired=False` to leave expired alerts out. Future alerts, which haven't started yet, are kept:
 
 ```python
-for alert in meteo.get_alerts(current_only=True):
+for alert in meteo.get_alerts(include_expired=False):
     print(alert['event'], alert['onset'], alert['expires'])
 ```
 
