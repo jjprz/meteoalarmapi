@@ -31,6 +31,13 @@ for alert in meteo.get_alerts():
 
 Each alert also has the CAP message fields `identifier`, `message_type` (`Alert`, `Update` or `Cancel`), `references` and `sent`, so you can follow a warning across updates and tell when one is cancelled.
 
+Some feeds keep warnings for a while after they end. Pass `current_only=True` to leave expired alerts out; alerts that haven't started yet are kept:
+
+```python
+for alert in meteo.get_alerts(current_only=True):
+    print(alert['event'], alert['onset'], alert['expires'])
+```
+
 Alerts are ranked with current ones first, then by awareness level (`awareness_level`, e.g. `3; Orange; Severe`), then by CAP severity. Alerts that rank equally keep their order in the feed.
 
 ## What changed from meteoalertapi
