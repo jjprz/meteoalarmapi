@@ -45,6 +45,7 @@ Alerts are ranked with current ones first, then by awareness level (`awareness_l
 - The package is now imported as `meteoalarmapi` instead of `meteoalertapi`.
 - `get_alert()` returns the most severe current alert. Before, it returned the first match in the feed, so a yellow warning could hide an amber one.
 - New `get_alerts()` returns every matching alert, most severe first.
+- `get_alerts(include_expired=False)` leaves out expired alerts, which some feeds keep for a while. Future alerts are kept.
 - `awareness_level`, `awareness_type` and the other CAP parameters are now included for feeds with a single language, such as the UK's. Before, they were silently dropped.
 - An alert listed several times in the feed (once per language or area) is returned and fetched only once.
 - Each alert includes the CAP `identifier`, `message_type`, `references` and `sent`.
